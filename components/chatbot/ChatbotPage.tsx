@@ -1,5 +1,7 @@
+// File: ChatbotPage.tsx (ĐÃ SỬA LỖI)
+
 import React, { useState, useRef, useEffect } from 'react';
-import { GoogleGenAI, Chat } from '@google/genai';
+// import { GoogleGenAI, Chat } from '@google/genai'; // <-- XÓA ĐI
 import { HomeIcon } from '../icons/HomeIcon';
 import { SparklesIcon } from '../icons/SparklesIcon';
 import { SendIcon } from '../icons/SendIcon';
@@ -24,37 +26,25 @@ const ChatbotPage: React.FC<ChatbotPageProps> = ({ onGoToWelcome, onImageUpload 
   const [messages, setMessages] = useState<Message[]>([]);
   const [inputValue, setInputValue] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [chat, setChat] = useState<Chat | null>(null);
+  // const [chat, setChat] = useState<Chat | null>(null); // <-- XÓA ĐI
   const [showUploadButton, setShowUploadButton] = useState(false);
-  
+
   const fileInputRef = useRef<HTMLInputElement>(null);
   const chatEndRef = useRef<HTMLDivElement>(null);
 
-  useEffect(() => {
-    const initChat = async () => {
-      try {
-        const ai = new GoogleGenAI({ apiKey: process.env.API_KEY as string });
-        const newChat = ai.chats.create({
-          model: 'gemini-2.5-flash',
-          config: {
-            systemInstruction: "Bạn là một trợ lý hữu ích cho một trình chỉnh sửa ảnh trực tuyến. Mục tiêu của bạn là hướng dẫn người dùng cách sử dụng các tính năng của trình chỉnh sửa. Bạn có thể đề xuất các tác vụ như xóa nền, nâng cao chất lượng ảnh, hoặc đưa ra các ý tưởng sáng tạo. Khi người dùng muốn thực hiện một tác vụ, hãy hướng dẫn họ các bước. Ví dụ, nếu họ muốn xóa nền, hãy yêu cầu họ tải ảnh lên trước. Hãy trả lời bằng tiếng Việt.",
-          },
-        });
-        setChat(newChat);
-      } catch (error) {
-        console.error("Lỗi khởi tạo Gemini:", error);
-        setMessages([{ sender: 'bot', text: 'Rất tiếc, đã có lỗi xảy ra khi kết nối với trợ lý AI.' }]);
-      }
-    };
-    initChat();
-  }, []);
-  
+  // useEffect(() => {
+  //   const initChat = async () => { ... }; // <-- XÓA TOÀN BỘ useEffect NÀY
+  //   initChat();
+  // }, []);
+
   useEffect(() => {
     chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages, isLoading]);
 
+  // HÀM QUAN TRỌNG NHẤT ĐÃ ĐƯỢC SỬA:
   const handleSendMessage = async (messageText: string) => {
-    if (!messageText.trim() || isLoading || !chat) return;
+    // Check đã bỏ `!chat`
+    if (!messageText.trim() || isLoading) return;
 
     const userMessage: Message = { sender: 'user', text: messageText };
     setMessages((prev) => [...prev, userMessage]);
@@ -63,14 +53,30 @@ const ChatbotPage: React.FC<ChatbotPageProps> = ({ onGoToWelcome, onImageUpload 
     setShowUploadButton(false);
 
     try {
-        const response = await chat.sendMessage({ message: messageText });
-        const botResponseText = response.text;
-        
-        // Special case for background removal
+        // ---- CODE MỚI THAY THẾ ----
+        // Gọi đến file /api/chat.ts (backend của bạn)
+        const response = await fetch('/api/chat', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ prompt: messageText }), // Gửi prompt lên backend
+        });
+
+        if (!response.ok) {
+          // Nếu backend bị lỗi, ném lỗi để vào catch
+          throw new Error(`Lỗi server: ${response.statusText}`);
+        }
+
+        const data = await response.json();
+        const botResponseText = data.reply; // Lấy câu trả lời từ backend
+        // ---- HẾT CODE MỚI ----
+
+        // Logic cũ của bạn vẫn giữ nguyên
         if (messageText.toLowerCase().includes('xóa phông') || messageText.toLowerCase().includes('remove background')) {
             setShowUploadButton(true);
         }
-        
+
         const botMessage: Message = { sender: 'bot', text: botResponseText };
         setMessages((prev) => [...prev, botMessage]);
 
@@ -86,11 +92,11 @@ const ChatbotPage: React.FC<ChatbotPageProps> = ({ onGoToWelcome, onImageUpload 
   const handleSuggestionClick = (suggestion: string) => {
     handleSendMessage(suggestion);
   };
-  
+
   const handleFileUploadClick = () => {
     fileInputRef.current?.click();
   };
-  
+
   const handleFileSelected = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (event.target.files && event.target.files[0]) {
         onImageUpload(event.target.files[0]);
@@ -98,11 +104,13 @@ const ChatbotPage: React.FC<ChatbotPageProps> = ({ onGoToWelcome, onImageUpload 
   };
 
   return (
-    <div className="flex flex-col h-screen bg-editor-bg text-gray-300">
+    // Toàn bộ phần JSX (return) không cần thay đổi
+    // ... (giữ nguyên toàn bộ code JSX của bạn) ...
+     <div className="flex flex-col h-screen bg-editor-bg text-gray-300">
       <header className="flex items-center justify-between p-4 border-b border-gray-700">
-        <button 
-          onClick={onGoToWelcome} 
-          title="Trang chính" 
+        <button
+          onClick={onGoToWelcome}
+          title="Trang chính"
           className="p-2 rounded-full text-gray-400 hover:text-white hover:bg-gray-700 transition-colors"
         >
           <HomeIcon className="w-6 h-6" />
@@ -124,19 +132,19 @@ const ChatbotPage: React.FC<ChatbotPageProps> = ({ onGoToWelcome, onImageUpload 
               <h2 className="text-4xl font-bold text-gray-100 mb-2">Xin chào!</h2>
               <p className="text-xl text-gray-400 mb-12">Tôi là trợ lý sáng tạo, tôi có thể giúp gì cho bạn hôm nay?</p>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <SuggestionChip 
+                  <SuggestionChip
                     icon={<WandIcon className="w-5 h-5" />}
                     title="Xóa phông nền"
                     description="Tự động tách chủ thể ra khỏi ảnh nền."
                     onClick={() => handleSuggestionClick("Tôi muốn xóa phông nền khỏi một bức ảnh")}
                   />
-                  <SuggestionChip 
+                  <SuggestionChip
                     icon={<EditIcon className="w-5 h-5" />}
                     title="Cải thiện ảnh"
                     description="Gợi ý các bước để làm cho ảnh của bạn đẹp hơn."
                     onClick={() => handleSuggestionClick("Làm thế nào để cải thiện chất lượng bức ảnh này?")}
                   />
-                   <SuggestionChip 
+                   <SuggestionChip
                     icon={<ChatIcon className="w-5 h-5" />}
                     title="Lên ý tưởng"
                     description="Tìm kiếm cảm hứng cho dự án tiếp theo của bạn."
@@ -150,7 +158,7 @@ const ChatbotPage: React.FC<ChatbotPageProps> = ({ onGoToWelcome, onImageUpload 
           {isLoading && <ChatMessage sender="bot" text="" isLoading={true} />}
           {showUploadButton && (
             <div className="flex justify-center">
-                <button 
+                <button
                     onClick={handleFileUploadClick}
                     className="mt-2 px-4 py-2 bg-primary text-white font-semibold rounded-lg hover:bg-primary-hover transition-colors"
                 >
@@ -161,39 +169,12 @@ const ChatbotPage: React.FC<ChatbotPageProps> = ({ onGoToWelcome, onImageUpload 
           <div ref={chatEndRef} />
         </div>
       </main>
-      
+
       <footer className="p-4 border-t border-gray-700">
-        <form 
+        <form
             className="max-w-3xl mx-auto flex items-center gap-3 bg-gray-800 rounded-xl p-2"
             onSubmit={(e) => { e.preventDefault(); handleSendMessage(inputValue); }}
         >
             <input
                 type="text"
                 value={inputValue}
-                onChange={(e) => setInputValue(e.target.value)}
-                placeholder="Nhập yêu cầu của bạn ở đây..."
-                className="flex-1 bg-transparent px-4 py-2 text-gray-200 placeholder-gray-500 focus:outline-none"
-                disabled={isLoading}
-            />
-            <button 
-                type="submit" 
-                className="p-2 rounded-full bg-primary text-white disabled:bg-gray-600 transition-colors"
-                disabled={!inputValue.trim() || isLoading}
-                aria-label="Gửi"
-            >
-                <SendIcon className="w-5 h-5" />
-            </button>
-        </form>
-         <input 
-            type="file" 
-            ref={fileInputRef} 
-            className="hidden" 
-            accept="image/png, image/jpeg, image/webp"
-            onChange={handleFileSelected}
-        />
-      </footer>
-    </div>
-  );
-};
-
-export default ChatbotPage;
