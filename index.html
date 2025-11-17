@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Trình chỉnh sửa ảnh</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            fontFamily: {
+              sans: ['Inter', 'sans-serif'],
+            },
+            colors: {
+              'primary': '#3b82f6', // blue-500
+              'primary-hover': '#2563eb', // blue-600
+              'light-bg': '#f3f4f6', // gray-100
+              'card-bg': '#ffffff', // white
+              'editor-bg': '#1f2937', // gray-800
+              'panel-bg': '#111827', // gray-900
+              'panel-header': '#1f2937', // gray-800
+              'border-color': '#d1d5db', // gray-300
+              'text-primary': '#111827', // gray-900
+              'text-secondary': '#6b7280', // gray-500
+              'icon-color': '#9ca3af', // gray-400
+            },
+            backgroundImage: {
+              'rainbow-gradient': 'linear-gradient(90deg, #ef4444, #f97316, #eab308, #22c55e, #06b6d4, #3b82f6, #a855f7, #ec4899, #ef4444)',
+            },
+            backgroundSize: {
+              '200%': '200% auto',
+              '400%': '400% auto',
+            },
+            keyframes: {
+              float: {
+                '0%, 100%': { transform: 'translateY(0)' },
+                '50%': { transform: 'translateY(-10px)' },
+              },
+              pulse: {
+                '0%, 100%': { opacity: '1' },
+                '50%': { opacity: '.7' },
+              },
+              'rainbow-border-flow': {
+                '0%': { 'background-position': '0% 50%' },
+                '50%': { 'background-position': '100% 50%' },
+                '100%': { 'background-position': '0% 50%' },
+              },
+              'rainbow-text-flow': {
+                '0%': { 'background-position': '0% 50%' },
+                '100%': { 'background-position': '200% 50%' },
+              },
+               'background-spin': {
+                'from': { transform: 'translate(-50%, -50%) rotate(0deg)' },
+                'to': { transform: 'translate(-50%, -50%) rotate(360deg)' },
+              },
+              'spin-slow': {
+                'from': { transform: 'rotate(0deg)' },
+                'to': { transform: 'rotate(360deg)' },
+              },
+            },
+            animation: {
+              float: 'float 4s ease-in-out infinite',
+              pulse: 'pulse 2.5s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+              'rainbow-border-flow': 'rainbow-border-flow 4s linear infinite',
+              'rainbow-text-flow': 'rainbow-text-flow 3s linear infinite',
+              'background-spin': 'background-spin 20s linear infinite',
+              'spin-slow': 'spin-slow 10s linear infinite',
+            },
+          },
+        },
+      }
+    </script>
+    <style>
+      @keyframes rainbow-glow-animation {
+        0%, 100% { filter: drop-shadow(0 0 15px #ff4444); }
+        14% { filter: drop-shadow(0 0 18px #ff9716); }
+        28% { filter: drop-shadow(0 0 15px #ffde08); }
+        42% { filter: drop-shadow(0 0 18px #22dd5e); }
+        57% { filter: drop-shadow(0 0 15px #06ccf4); }
+        71% { filter: drop-shadow(0 0 18px #3b82ff); }
+        85% { filter: drop-shadow(0 0 15px #be55f7); }
+      }
+      .animate-rainbow-glow {
+        animation: rainbow-glow-animation 5s linear infinite;
+      }
+      .welcome-background::before {
+        content: '';
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        width: 150%;
+        height: 150%;
+        background: conic-gradient(
+          from 0deg at 50% 50%,
+          #ef4444,
+          #f97316,
+          #eab308,
+          #22c55e,
+          #06b6d4,
+          #3b82f6,
+          #a855f7,
+          #ec4899,
+          #ef4444
+        );
+        animation: background-spin 20s linear infinite;
+        z-index: 1;
+        opacity: 0.15;
+        filter: blur(100px);
+      }
+    </style>
+  <script type="importmap">
+{
+  "imports": {
+    "react/": "https://aistudiocdn.com/react@^19.2.0/",
+    "react": "https://aistudiocdn.com/react@^19.2.0",
+    "react-dom/": "https://aistudiocdn.com/react-dom@^19.2.0/",
+    "@google/genai": "https://aistudiocdn.com/@google/genai@^1.29.1"
+  }
+}
+</script>
+<link rel="stylesheet" href="/index.css">
+</head>
+  <body class="bg-light-bg text-text-primary antialiased font-sans text-sm">
+    <div id="root"></div>
+    <script type="module" src="/index.tsx"></script>
+  </body>
+</html>
